@@ -1,0 +1,357 @@
+.hand-cursor {
+	cursor: grab;
+    cursor: -moz-grab;
+    cursor: -webkit-grab;
+	/*
+    cursor: url(/images/icon/hand.png) 16 16, default !important;
+    */
+}
+.hand-grab-cursor {
+    cursor: url('/images/icon/hand-grab.png'), default !important;
+}
+
+.dbd-cubemap-top-menu-stack{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/stack.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-stack:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/stack-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+
+.dbd-cubemap-top-menu-shelf{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/shelf.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-shelf:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/shelf-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-top-menu-box{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/box.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-box:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/box-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-top-menu-magnifier{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/magnifier.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-magnifier:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/magnifier-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-top-menu-eraser{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/eraser.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-eraser:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/eraser-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-hand{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/hand.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-hand:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/hand-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-loader-truck{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/loader-truck.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-loader-truck:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/loader-truck-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-redo{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/redo.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-redo:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/redo-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-saving-location{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/saving-location.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-saving-location:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/saving-location-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-saving-documents{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/saving-documents.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-saving-documents:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/saving-documents-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-camera{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/camera.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-camera:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/camera-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-up-arrow{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/up-arrow.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-up-arrow:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/up-arrow-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-left-arrow{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/left-arrow.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-left-arrow:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/left-arrow-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-top-menu-down-arrow{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/down-arrow.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-down-arrow:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/down-arrow-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+
+.dbd-cubemap-top-menu-right-arrow{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/right-arrow.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-top-menu-right-arrow:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/right-arrow-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-round-plus-button{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/round-plus-button.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-round-plus-button:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/round-plus-button-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-round-minus-button{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/round-minus-button.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-round-minus-button:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/round-minus-button-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-round-delete-button{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/round-delete-button.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.dbd-cubemap-round-delete-button:hover{
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-image: url("../images/icon/round-delete-button-red.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+
+.dbd-cubemap-check-green{
+	width:24px;
+	height:24px;
+	display:inline-block;
+	background-image: url("../images/icon/check-green.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
