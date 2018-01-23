@@ -20,7 +20,7 @@
 var dbd = new DOBBYDO_CUBEMAP('test_holder');
 //dbd.type = "view";
 //alert(dbd.getInfo());
-dbd.init();
+dbd.run();
 </script>
 
 </body>

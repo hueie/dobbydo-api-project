@@ -2,21 +2,56 @@ function DOBBYDO_CUBEMAP (GLOBAL_ID) {
 	this.GLOBAL_ID = GLOBAL_ID;
 	this.type = "edit"; //edit, view
 	this.option1 = "square";
+	
+
+	this.object_id = 0; // In Graph
+	this.static_linked_id = 0;
+
+	
+	this.container;
+	this.camera, this.scene, this.renderer;
+	this.plane, this.cube, this.line;
+	this.mouse, this.raycaster, this.isShiftDown = false, this.isCtrlDown = false, this.isAltDown = false;
+
+	this.rollOverGeo, this.rollOverMesh, this.rollOverMaterial;
+	this.rollOverBooksfXGeo, this.rollOverBooksfXMaterial, this.rollOverBooksfXMesh = [];
+	this.rollOverBooksfYGeo, this.rollOverBooksfYMaterial, this.rollOverBooksfYMesh = [];
+	this.rollOverBooksfZGeo, this.rollOverBooksfZMaterial, this.rollOverBooksfZMesh = [];
+	this.rollOverBooksfFlwGeo, this.rollOverBooksfFlwMaterial, this.rollOverBooksfFlwMesh = [];
+
+	this.cubeGeo, this.cubeMaterial, this.cctvMaterial;
+	this.realBooksfXGeo, this.realBooksfXMaterial;
+	this.realBooksfYGeo, this.realBooksfYMaterial;
+	this.realBooksfZGeo, this.realBooksfZMaterial;
+	this.realBooksfFlwGeo, this.realBooksfFlwMaterial;
+
+	this.objects = [];
+	this.grabbing_objects = [];
+
+	this.pen_type = 999; // 999:magnifier//0:eraser//1:white box//2:red box//3,4,5:y,z,x-axis
+						// green pen//6:rack//990:hand , 991:hand-grab
+	this.cubes = [];
+	
+
+	this.booksf_flw = 1; 
+	this.booksf_y = 1; 
+	this.booksf_z = 1; 
+	this.booksf_x = 1; 
 }
 
-DOBBYDO_CUBEMAP.prototype.init = function () {
+DOBBYDO_CUBEMAP.prototype.run = function () {
 	var init_html = "<input type=\"hidden\" id=\"stack_id\" value=\"0\"><!-- 서고 ID  --><input type=\"hidden\" id=\"linked_id\" value=\"0\"><!-- 연결 ID  --><input type=\"hidden\" id=\"booksf_id\" value=\"0\"/><!-- 서가 ID --><div id=\"cubemapview\" oncontextmenu=\"return false;\">	<div style=\"width: 60%; position: absolute\">		<div id=\"info\" >			<span id=\"stackInfo\" style=\"font-weight:bold;\">				오른쪽 서고 아이콘을 이용하여 서고를 선택해주세요.			</span>			<span style=\"float:right;margin:10px;\">				<div class=\"stack-event dbd-cubemap-top-menu-stack\" ></div>				<div id=\"menu_icons\" style=\"display:inline-block;\">					<div class=\"shelf-event dbd-cubemap-top-menu-shelf\" ></div>					<div class=\"box-event dbd-cubemap-top-menu-box\" ></div>					<div class=\"magnifier-event dbd-cubemap-top-menu-magnifier\" ></div>					<div class=\"eraser-event dbd-cubemap-top-menu-eraser\" ></div>					<div class=\"hand-event dbd-cubemap-top-menu-hand\" ></div>					<div class=\"loader-truck-event dbd-cubemap-top-menu-loader-truck\" ></div>					<div class=\"redo-event dbd-cubemap-top-menu-redo\" ></div>					<div class=\" dbd-cubemap-top-menu-saving-location\" onclick=\"savemap(); event.stopPropagation();\" ></div>					<div class=\" dbd-cubemap-top-menu-saving-documents\" onclick=\"savestack(); event.stopPropagation();\" ></div>					<!-- <div class=\"camera-event dbd-cubemap-top-menu-camera\" ></div> -->									</div>				<div style=\"float:right;\">					<table>						 						<tr>						<td></td>							<td>								<div class=\"up-arrow-event dbd-cubemap-top-menu-up-arrow\" ></div>							</td>						<td></td>						</tr>						<tr>							<td>								<div class=\"left-arrow-event dbd-cubemap-top-menu-left-arrow\" ></div>							</td>							<td>								<div class=\"down-arrow-event dbd-cubemap-top-menu-down-arrow\" ></div>							</td>							<td>								<div class=\"right-arrow-event dbd-cubemap-top-menu-right-arrow\" ></div>							</td>						</tr>											</table>				</div>			</span>			<hr>	 <!-- Not Use For Basic Cubemap API		<div id=\"canvas_contents\" style=\"display:block;\">				 <img id=\"canvas_img\"></img>				<div class=\"round-plus-button-event dbd-cubemap-round-plus-button\" ></div>				<div class=\"round-minus-button-event dbd-cubemap-round-minus-button\" ></div>				<div class=\"round-delete-button-event dbd-cubemap-round-delete-button\" ></div>				<div id=\"line_list\" style=\"background-color:white\"></div>			</div> -->		</div>	</div>	<div>		<div style=\"position:absolute;z-index:90;display:none;height:100%;width:60%;\" id=\"rightClickContainer\" onclick=\"disappearRightClickContainer();\">			<table id=\"rightClickMenuTable\" style=\"position:absolute;z-index:91;\">				<tr>					<td>						<div class=\"box-event dbd-cubemap-top-menu-box\" ></div>					</td>					<td>						<div class=\"shelf-event dbd-cubemap-top-menu-shelf\" ></div>					</td>					<td>					</td>				</tr>				<tr>					<td>						<div class=\"loader-truck-event dbd-cubemap-top-menu-loader-truck\" ></div>					</td>					<td>					</td>					<td>						<div class=\"magnifier-event dbd-cubemap-top-menu-magnifier\" ></div>					</td>				</tr>				<tr>					<td>						<div class=\"hand-event dbd-cubemap-top-menu-hand\" ></div>					</td>					<td>					</td>					<td>						<div class=\"eraser-event dbd-cubemap-top-menu-eraser\" ></div>					</td>				</tr>			</table>			<div id=\"view\" style=\"position:absolute;background-color:#feffce;left:50%;top:50%;border-radius: 10px;padding:10px;\" onclick=\";event.stopPropagation();\"></div>			<div id=\"addandlist\" style=\"position:absolute;background-color:#feffce;left:50%;top:50%;border-radius: 10px;padding:10px;\" onclick=\";event.stopPropagation();\">				<div id=\"stack_add_form\" style=\"display: none\">					<span  style=\"height:50px; line-height:50px; text-align:center;\">						새 서고 이름 : <input style=\"height:24px;\" type=\"text\" id=\"stack_nm\" onclick=\";event.stopPropagation();\"> 						비고 : <input style=\"height:24px;\" type=\"text\" id=\"stack_remk\" onclick=\";event.stopPropagation();\">					</span> 					<div class=\"dbd-cubemap-check-green\" onclick=\"addStack(); event.stopPropagation();\"></div>				</div>				<div id=\"booksf_add_form\" style=\"display: none\">					<span style=\"height:50px; line-height:50px; text-align:center;\">						새 서가 이름 : <input type=\"text\" style=\"height:24px;\" id=\"booksf_nm\" onclick=\";event.stopPropagation();\"> <!-- 단계수 : <input type=\"text\" id=\"booksf_f_cnt\"><br> -->						비고 : <input type=\"text\" style=\"height:24px;\" id=\"booksf_remk\" onclick=\";event.stopPropagation();\">					</span>					<div class=\" dbd-cubemap-check-green\" onclick=\"addBooksf();event.stopPropagation()\"></div>					<br>					<div style=\"display: inline\">						x : <input type=\"text\" id=\"booksf_x\" style=\"width: 20px\" value=\"1\"></input>						<button onclick=\"upNdown('booksf_x','1');event.stopPropagation();\">+</button>						<button onclick=\"upNdown('booksf_x','-1');event.stopPropagation();\">-</button>					</div>					<div style=\"display: inline\">						z : <input type=\"text\" id=\"booksf_z\" style=\"width: 20px\" value=\"1\"></input>						<button onclick=\"upNdown('booksf_z','1');event.stopPropagation();\">+</button>						<button onclick=\"upNdown('booksf_z','-1');event.stopPropagation();\">-</button>					</div>					<div style=\"display: inline\">						y : <input type=\"text\" id=\"booksf_y\" style=\"width: 20px\"							value=\"1\"></input>						<button onclick=\"upNdown('booksf_y','1');event.stopPropagation();\">+</button>						<button onclick=\"upNdown('booksf_y','-1');event.stopPropagation();\">-</button>					</div>					<div style=\"display: inline\">						단계수 : <input type=\"text\" id=\"booksf_flw\" style=\"width: 20px\"							value=\"1\"></input>						<button onclick=\"upNdown('booksf_flw','1');event.stopPropagation();\">+</button>						<button onclick=\"upNdown('booksf_flw','-1');event.stopPropagation();\">-</button>					</div>				</div>					<div id=\"box_add_form\" style=\"display: none\">					<span style=\"height:50px; line-height:50px; text-align:center;\">						새 상자 이름: <input type=\"text\" style=\"height:24px;\" id=\"box_nm\" onclick=\";event.stopPropagation();\"> 						비고 : <input type=\"text\" style=\"height:24px;\" id=\"box_remk\" onclick=\";event.stopPropagation();\">					</span>					<div class=\" dbd-cubemap-check-green\" onclick=\"addBox(); event.stopPropagation();\"></div>				</div>				<hr>				<div id=\"list\"></div>			</div>		</div>				<div style=\"width: 60%; display: inline;\" id=\"container\"></div>		<!-- 		<div style=\"width: 19%; display: inline; float: right;\"></div>		 -->	</div></div>";
 	$('#'+this.GLOBAL_ID).html(init_html) ;
     //$('#'+this.GLOBAL_ID).load('/dobbydo-cubemap-1.0.1/html/dbd-cubemap.html') ;
-	setStackId(0);
-	getStackList();
+	this.setStackId(0);
+	this.getStackList();
 }
 
 DOBBYDO_CUBEMAP.prototype.getInfo = function () {
     return this.GLOBAL_ID + ' : ' + this.type + ' ' +this.option1 ;
 }
 
-function setStackId(stack_id){
+DOBBYDO_CUBEMAP.prototype.setStackId = function (stack_id){
 	if(stack_id == -1){
 		// 되돌리기
 		stack_id = $("#stack_id").val();
@@ -29,9 +64,9 @@ function setStackId(stack_id){
         url: "/cubemap/Cubemap.jsp",
         data: {"stack_id" : stack_id},
         success: function(data){
-            initpushdata(data);
-			init();
-			render();
+        	this.initpushdata(data);
+        	this.init();
+        	this.render();
         },
         error:function (xhr, ajaxOptions, thrownError){
             alert(xhr.status);
@@ -39,10 +74,7 @@ function setStackId(stack_id){
     });
 }
 
-var object_id = 0; // In Graph
-var static_linked_id = 0;
-
-function savemap(){
+DOBBYDO_CUBEMAP.prototype.savemap = function (){
     var str = "";
 	var cube_list = [];
 	// cube_axis : none:0 y:1 z:2 x:3
@@ -100,7 +132,7 @@ function savemap(){
     });
 	
 }
-function savestack(){
+DOBBYDO_CUBEMAP.prototype.savestack = function (){
 	var stackId = $("#stack_id").val();
 	$.ajax({
         type: "post",
@@ -115,7 +147,7 @@ function savestack(){
         } 
     });
 }
-function addStack(){
+DOBBYDO_CUBEMAP.prototype.addStack = function (){
 	var stackNm = $("#stack_nm").val();
 	var stackRemk = $("#stack_remk").val();
 	$.ajax({
@@ -123,10 +155,10 @@ function addStack(){
         url: "/cubemap/CubemapStackAdd.jsp",
         data: {"stack_nm" : stackNm, "stack_remk" : stackRemk},
         success: function(data){        	
-        	//setStackId(0);
+        	//this.setStackId(0);
         	//pending
-        	//disappearRightClickContainer();
-            getStackList();
+        	//this.disappearRightClickContainer();
+        	this.getStackList();
             alert("등록되었습니다.");
         },
         error:function (xhr, ajaxOptions, thrownError){
@@ -135,7 +167,7 @@ function addStack(){
         } 
     });
 }
-function addBooksf(){
+DOBBYDO_CUBEMAP.prototype.addBooksf = function (){
 	var stack_id = $("#stack_id").val();
 	var booksf_nm = $("#booksf_nm").val();
 	var booksf_remk = $("#booksf_remk").val();
@@ -160,7 +192,7 @@ function addBooksf(){
     });
 }
 
-function addBox(){
+DOBBYDO_CUBEMAP.prototype.addBox = function (){
 	var box_nm = $("#box_nm").val();
 	var box_remk = $("#box_remk").val();
 	
@@ -179,7 +211,7 @@ function addBox(){
     });
 }
 
-function getStackList(){
+DOBBYDO_CUBEMAP.prototype.getStackList = function (){
 	$("#stack_add_form").css("display","block");
 	$("#booksf_add_form").css("display","none");
 	$("#box_add_form").css("display","none");
@@ -197,7 +229,7 @@ function getStackList(){
         	var html = "<table><tr><td></td><td>이름</td><td>비고</td></tr>";
         	for(var idx in obj){
         		html += "<tr>";
-        		html += "<td><div class=\"dbd-cubemap-check-green\" style=\"width:24px;height:24px;\" onclick=\"$('#menu_icons').css('display','inline-block');$('#stackInfo').text('서고 : "+obj[idx].stack_nm+" ');setStackId("+obj[idx].stack_id+");disappearRightClickContainer();\"></td>";
+        		html += "<td><div class=\"dbd-cubemap-check-green\" style=\"width:24px;height:24px;\" onclick=\"$('#menu_icons').css('display','inline-block');$('#stackInfo').text('서고 : "+obj[idx].stack_nm+" ');this.setStackId("+obj[idx].stack_id+");disappearRightClickContainer();\"></td>";
         		html += "<td>"+obj[idx].stack_nm + "</td>"; 
         		html += "<td>"+obj[idx].stack_remk + "</td>";
         		html += "</tr>"; 
@@ -211,7 +243,7 @@ function getStackList(){
         } 
     });
 }
-function getBooksfList(){
+DOBBYDO_CUBEMAP.prototype.getBooksfList = function (){
 	$("#stack_add_form").css("display","none");
 	$("#booksf_add_form").css("display","block");
 	$("#box_add_form").css("display","none");
@@ -245,7 +277,7 @@ function getBooksfList(){
         } 
     });
 }
-function getBoxList(){
+DOBBYDO_CUBEMAP.prototype.getBoxList = function (){
 	$("#stack_add_form").css("display","none");
 	$("#booksf_add_form").css("display","none");
 	$("#box_add_form").css("display","block");
@@ -275,7 +307,7 @@ function getBoxList(){
 	});
 }
 
-function getAllFiles2(){
+DOBBYDO_CUBEMAP.prototype.getAllFiles2 = function (){
 	$("#stack_add_form").css("display","none");
 	$("#booksf_add_form").css("display","none");
 	$("#box_add_form").css("display","none");
@@ -300,7 +332,7 @@ function getAllFiles2(){
     });
 }
 
-function setImgSrc2(fileupload_id, file_img_nm, fileupload_reg_id ) {
+DOBBYDO_CUBEMAP.prototype.setImgSrc2 = function (fileupload_id, file_img_nm, fileupload_reg_id ) {
 	$("#fileupload_id").val(fileupload_id);
 	
 	img = new Image(); // 480, 360
@@ -376,7 +408,7 @@ function setImgSrc2(fileupload_id, file_img_nm, fileupload_reg_id ) {
 	}
 };
 
-function zoomIn(){
+DOBBYDO_CUBEMAP.prototype.zoomIn = function (){
 	var str = $('#canvas_img').css('width'); 
 	var rewidth = parseInt(str.substring(0,str.length-2)) * 2;
 	str = $('#canvas_img').css('height'); 
@@ -386,7 +418,7 @@ function zoomIn(){
 	imageFoo.style.width =  rewidth + 'px';
 	imageFoo.style.height =  reheight + 'px';
 }
-function zoomOut(){
+DOBBYDO_CUBEMAP.prototype.zoomOut = function (){
 	var str = $('#canvas_img').css('width'); 
 	var rewidth = parseInt(str.substring(0,str.length-2)) * 0.5;
 	str = $('#canvas_img').css('height'); 
@@ -428,7 +460,7 @@ function zoomOut(){
  * document.getElementById("list").innerHTML = html; }, error:function (xhr,
  * ajaxOptions, thrownError){ alert(xhr.status); alert(thrownError); } }); }
  */
-function updateBooksfIdToCammapping(cammapping_id){
+DOBBYDO_CUBEMAP.prototype.updateBooksfIdToCammapping = function (cammapping_id){
 	var booksf_id = $("#booksf_id").val();
 	if(booksf_id == ""){
 		alert("연결할 서가를 선택해주세요.");
@@ -452,7 +484,7 @@ function updateBooksfIdToCammapping(cammapping_id){
 }
 
 
-function getBooksfView(booksf_id){
+DOBBYDO_CUBEMAP.prototype.getBooksfView = function (booksf_id){
 	// 서가
 	$.ajax({
         type: "post",
@@ -469,7 +501,7 @@ function getBooksfView(booksf_id){
         } 
     });
 }
-function getBoxView(box_id){
+DOBBYDO_CUBEMAP.prototype.getBoxView = function (box_id){
 	//alert(box_id);
 	// 상자
 	$.ajax({
@@ -486,11 +518,7 @@ function getBoxView(box_id){
         } 
     });
 }
-var booksf_flw = 1; 
-var booksf_y = 1; 
-var booksf_z = 1; 
-var booksf_x = 1; 
-function upNdown(tag_id, i){
+DOBBYDO_CUBEMAP.prototype.upNdown = function (tag_id, i){
 	var value =  $("#"+tag_id).val();
 	if(value == 1 && parseInt(i) < 0 ){
 		return false;
@@ -518,235 +546,171 @@ function upNdown(tag_id, i){
 	}
 	
 	if(tag_id == "booksf_y" || tag_id == "selected_booksf_y"){
-		booksf_y = value;
+		this.booksf_y = value;
 	} else if(tag_id == "booksf_z" || tag_id == "selected_booksf_z"){
-		booksf_z = value;
+		this.booksf_z = value;
 	} else if(tag_id == "booksf_x" || tag_id == "selected_booksf_x"){
-		booksf_x = value;
+		this.booksf_x = value;
 	} else if(tag_id == "booksf_flw" || tag_id == "selected_booksf_flw"){
-		booksf_flw = value;
+		this.booksf_flw = value;
 	} else if(tag_id == "linked_id"){
-		static_linked_id = value;
+		this.static_linked_id = value;
 	}
 }
-/*
-function upNdown(tag_id, i){
-	var value =  $("#"+tag_id).val();
-	if(value == 1 && parseInt(i) < 0 ){
-		return false;
-	}
-	if(tag_id == "booksf_flw" && $("#booksf_flw").val() == $("#booksf_y").val() && parseInt(i) > 0){
-		return false;
-	}
-	
-	if(tag_id == "linked_id"){
-		value = i;
-	} else if(tag_id == "selected_booksf_y"){
-		value = i;
-	} else{
-		value = parseInt(value) + parseInt(i);
-	}
-	
-	if(value >= 0){
-		if(tag_id == "selected_booksf_y"){
-			$("#booksf_y").val(value);
-		} else {
-			$("#"+tag_id).val(value);
-		}
-	}
-	
-	if(tag_id == "booksf_y"){
-		booksf_y = value;
-	} else if(tag_id == "booksf_z"){
-		booksf_z = value;
-	} else if(tag_id == "booksf_x"){
-		booksf_x = value;
-	} else if(tag_id == "booksf_flw"){
-		booksf_flw = value;
-	} else if(tag_id == "linked_id"){
-		static_linked_id = value;
-	} else if(tag_id == "selected_booksf_y"){
-		booksf_y = value;
-	}
-}
-*/
-var container;
-var camera, scene, renderer;
-var plane, cube, line;
-var mouse, raycaster, isShiftDown = false, isCtrlDown = false, isAltDown = false;
 
-var rollOverGeo, rollOverMesh, rollOverMaterial;
-var rollOverBooksfXGeo, rollOverBooksfXMaterial, rollOverBooksfXMesh = [];
-var rollOverBooksfYGeo, rollOverBooksfYMaterial, rollOverBooksfYMesh = [];
-var rollOverBooksfZGeo, rollOverBooksfZMaterial, rollOverBooksfZMesh = [];
-var rollOverBooksfFlwGeo, rollOverBooksfFlwMaterial, rollOverBooksfFlwMesh = [];
-
-var cubeGeo, cubeMaterial, cctvMaterial;
-var realBooksfXGeo, realBooksfXMaterial;
-var realBooksfYGeo, realBooksfYMaterial;
-var realBooksfZGeo, realBooksfZMaterial;
-var realBooksfFlwGeo, realBooksfFlwMaterial;
-
-var objects = [];
-var grabbing_objects = [];
-
-var pen_type = 999; // 999:magnifier//0:eraser//1:white box//2:red box//3,4,5:y,z,x-axis
-					// green pen//6:rack//990:hand , 991:hand-grab
-var cubes = [];
-
-function initRoleOverMesh(){
+DOBBYDO_CUBEMAP.prototype.initRoleOverMesh = function (){
 	
 }
 
-function initpushdata(objs){
-	booksf_flw = 1; 
-	booksf_y = 1; 
-	booksf_z = 1; 
-	booksf_x = 1; 
+DOBBYDO_CUBEMAP.prototype.initpushdata = function (objs){
+	this.booksf_flw = 1; 
+	this.booksf_y = 1; 
+	this.booksf_z = 1; 
+	this.booksf_x = 1; 
 	
-	objects = [];
+	this.objects = [];
 	//pen_type = 1;
-	cubes = [];
+	this.cubes = [];
 	for(var idx in objs){
 		var myVar = objs[idx].cube_idx;
 		if (typeof myVar != 'undefined'){
-			cubes.push({cube_idx:objs[idx].cube_idx, pos_x:objs[idx].pos_x, pos_y:objs[idx].pos_y, pos_z:objs[idx].pos_z, object_id:objs[idx].object_id, cube_type:objs[idx].cube_type, linked_id:objs[idx].linked_id, cube_size:objs[idx].cube_size, cube_axis:objs[idx].cube_axis });
+			this.cubes.push({cube_idx:objs[idx].cube_idx, pos_x:objs[idx].pos_x, pos_y:objs[idx].pos_y, pos_z:objs[idx].pos_z, object_id:objs[idx].object_id, cube_type:objs[idx].cube_type, linked_id:objs[idx].linked_id, cube_size:objs[idx].cube_size, cube_axis:objs[idx].cube_axis });
 		}
 	}
 }
 
-function init() {
+DOBBYDO_CUBEMAP.prototype.init = function () {
 	// container = document.createElement( 'div' );
 	// document.body.appendChild( container );
-	container = document.getElementById( 'container' );
-	container.innerHTML = '';
+	this.container = document.getElementById( 'container' );
+	this.container.innerHTML = '';
 	
 	/* Create Scene */
-	scene = new THREE.Scene();
+	this.scene = new THREE.Scene();
 	/* Camera Setting */
-	camera = new THREE.PerspectiveCamera( 45, window.innerWidth*6/10 / window.innerHeight, 1, 10000 );
-	camera.position.set( 1000, 1000, 0 );
-	camera.lookAt( new THREE.Vector3() );
+	this.camera = new THREE.PerspectiveCamera( 45, this.window.innerWidth*6/10 / this.window.innerHeight, 1, 10000 );
+	this.camera.position.set( 1000, 1000, 0 );
+	this.camera.lookAt( new THREE.Vector3() );
 	
 	/* Blue Cube Setting (roll-over helpers) */
-	rollOverGeo = new THREE.BoxGeometry( 50, 50, 50 );
-	rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
-	rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial ); 
-	rollOverMesh.position.y = 10000;
-	scene.add( rollOverMesh );
+	this.rollOverGeo = new THREE.BoxGeometry( 50, 50, 50 );
+	this.rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
+	this.rollOverMesh = new THREE.Mesh( this.rollOverGeo, this.rollOverMaterial ); 
+	this.rollOverMesh.position.y = 10000;
+	this.scene.add( rollOverMesh );
 	
 	/* Start Rack */
-	rollOverBooksfYGeo = new THREE.BoxGeometry(8,50*booksf_y,8);
-	rollOverBooksfYMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
+	this.rollOverBooksfYGeo = new THREE.BoxGeometry(8,50*this.booksf_y,8);
+	this.rollOverBooksfYMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
 	
-	rollOverBooksfYMesh[1] = new THREE.Mesh( rollOverBooksfYGeo, rollOverBooksfYMaterial ); 
-	rollOverBooksfYMesh[1].rotation.y = 0.5*Math.PI;
+	this.rollOverBooksfYMesh[1] = new THREE.Mesh( this.rollOverBooksfYGeo, this.rollOverBooksfYMaterial ); 
+	this.rollOverBooksfYMesh[1].rotation.y = 0.5*Math.PI;
 	/* !!
 	rollOverBooksfYMesh[1].position.divideScalar( 50 ).round().multiplyScalar( 50 );// .addScalar(
 	rollOverBooksfYMesh[1].position.y += 25*booksf_y;
 	*/
-	rollOverBooksfYMesh[1].position.y = 10000;
-	scene.add( rollOverBooksfYMesh[1] );
+	this.rollOverBooksfYMesh[1].position.y = 10000;
+	this.scene.add( rollOverBooksfYMesh[1] );
 	
-	rollOverBooksfYMesh[2] = rollOverBooksfYMesh[1].clone();
+	this.rollOverBooksfYMesh[2] = this.rollOverBooksfYMesh[1].clone();
 	// !! rollOverBooksfYMesh[2].position.x += 50*booksf_x;
-	scene.add( rollOverBooksfYMesh[2] );
+	this.scene.add( rollOverBooksfYMesh[2] );
 
-	rollOverBooksfYMesh[3] = rollOverBooksfYMesh[1].clone();
+	this.rollOverBooksfYMesh[3] = this.rollOverBooksfYMesh[1].clone();
 	// !! rollOverBooksfYMesh[3].position.z += 50*booksf_z;
-	scene.add( rollOverBooksfYMesh[3] );
+	this.scene.add( rollOverBooksfYMesh[3] );
 
-	rollOverBooksfYMesh[4] = rollOverBooksfYMesh[1].clone();
+	this.rollOverBooksfYMesh[4] = this.rollOverBooksfYMesh[1].clone();
 	// !! rollOverBooksfYMesh[4].position.x += 50*booksf_x;
 	// !! rollOverBooksfYMesh[4].position.z += 50*booksf_z;
-	scene.add( rollOverBooksfYMesh[4] );
+	this.scene.add( rollOverBooksfYMesh[4] );
 	
 	
-	rollOverBooksfZGeo = new THREE.BoxGeometry(8,8,50*booksf_z);
-	rollOverBooksfZMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
+	this.rollOverBooksfZGeo = new THREE.BoxGeometry(8,8,50*this.booksf_z);
+	this.rollOverBooksfZMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
 	
-	rollOverBooksfZMesh[1] = new THREE.Mesh( rollOverBooksfZGeo, rollOverBooksfZMaterial ); 
+	this.rollOverBooksfZMesh[1] = new THREE.Mesh( this.rollOverBooksfZGeo, this.rollOverBooksfZMaterial ); 
 	/* !!
 	rollOverBooksfZMesh[1].position.divideScalar( 50 ).round().multiplyScalar( 50 );
 	rollOverBooksfZMesh[1].position.z += 25*booksf_z;
 	*/
-	rollOverBooksfZMesh[1].position.y = 10000;
-	scene.add( rollOverBooksfZMesh[1] );
+	this.rollOverBooksfZMesh[1].position.y = 10000;
+	this.scene.add( rollOverBooksfZMesh[1] );
 	
-	rollOverBooksfZMesh[2] = rollOverBooksfZMesh[1].clone();
+	this.rollOverBooksfZMesh[2] = this.rollOverBooksfZMesh[1].clone();
 	// !! rollOverBooksfZMesh[2].position.y += 50*booksf_y;
-	scene.add( rollOverBooksfZMesh[2] );
+	this.scene.add( this.rollOverBooksfZMesh[2] );
 	
-	rollOverBooksfZMesh[3] = rollOverBooksfZMesh[1].clone();
+	this.rollOverBooksfZMesh[3] = this.rollOverBooksfZMesh[1].clone();
 	// !! rollOverBooksfZMesh[3].position.x += 50*booksf_x;
-	scene.add( rollOverBooksfZMesh[3] );
+	this.scene.add( rollOverBooksfZMesh[3] );
 	
-	rollOverBooksfZMesh[4] = rollOverBooksfZMesh[1].clone();
+	this.rollOverBooksfZMesh[4] = this.rollOverBooksfZMesh[1].clone();
 	// !! rollOverBooksfZMesh[4].position.y += 50*booksf_y;
 	// !! rollOverBooksfZMesh[4].position.x += 50*booksf_x;
-	scene.add( rollOverBooksfZMesh[4] );
+	this.scene.add( rollOverBooksfZMesh[4] );
 	
 	
-	rollOverBooksfXGeo = new THREE.BoxGeometry(50*booksf_x,8,8);
-	rollOverBooksfXMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
+	this.rollOverBooksfXGeo = new THREE.BoxGeometry(50*this.booksf_x,8,8);
+	this.rollOverBooksfXMaterial = new THREE.MeshBasicMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
 	
-	rollOverBooksfXMesh[1] = new THREE.Mesh( rollOverBooksfXGeo, rollOverBooksfXMaterial ); 
-	rollOverBooksfXMesh[1].rotation.x = 0.5*Math.PI;
+	this.rollOverBooksfXMesh[1] = new THREE.Mesh( this.rollOverBooksfXGeo, this.rollOverBooksfXMaterial ); 
+	this.rollOverBooksfXMesh[1].rotation.x = 0.5*Math.PI;
 	/* !!
 	rollOverBooksfXMesh[1].position.divideScalar( 50 ).round().multiplyScalar( 50 );
 	rollOverBooksfXMesh[1].position.x += 25*booksf_x;
 	*/
-	rollOverBooksfXMesh[1].position.y = 10000;
-	scene.add( rollOverBooksfXMesh[1] );
+	this.rollOverBooksfXMesh[1].position.y = 10000;
+	this.scene.add( this.rollOverBooksfXMesh[1] );
 
-	rollOverBooksfXMesh[2] = rollOverBooksfXMesh[1].clone();
+	this.rollOverBooksfXMesh[2] = this.rollOverBooksfXMesh[1].clone();
 	// !! rollOverBooksfXMesh[2].position.y += 50*booksf_y;
-	scene.add( rollOverBooksfXMesh[2] );
+	this.scene.add( this.rollOverBooksfXMesh[2] );
 	
-	rollOverBooksfXMesh[3] = rollOverBooksfXMesh[1].clone();
+	this.rollOverBooksfXMesh[3] = this.rollOverBooksfXMesh[1].clone();
 	// !! rollOverBooksfXMesh[3].position.z += 50*booksf_z;
-	scene.add( rollOverBooksfXMesh[3] );
+	this.scene.add( this.rollOverBooksfXMesh[3] );
 	
-	rollOverBooksfXMesh[4] = rollOverBooksfXMesh[1].clone();
+	this.rollOverBooksfXMesh[4] = this.rollOverBooksfXMesh[1].clone();
 	// !! rollOverBooksfXMesh[4].position.y += 50*booksf_y;
 	// !! rollOverBooksfXMesh[4].position.z += 50*booksf_z;
-	scene.add( rollOverBooksfXMesh[4] );
+	this.scene.add( rollOverBooksfXMesh[4] );
 	/* End Rack */
 	
 	
 	/* Book Shelves */
-	rollOverBooksfFlwGeo = new THREE.BoxGeometry( 50, 1, 50 );
-	rollOverBooksfFlwMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
+	this.rollOverBooksfFlwGeo = new THREE.BoxGeometry( 50, 1, 50 );
+	this.rollOverBooksfFlwMaterial = new THREE.MeshLambertMaterial( { color: 0x0000ff, opacity: 0.5, transparent: true } );
 	for(var idx=0; idx<50; idx++){
-		rollOverBooksfFlwMesh[idx] = new THREE.Mesh(rollOverBooksfFlwGeo, rollOverBooksfFlwMaterial); 
-		rollOverBooksfFlwMesh[idx].position.y = 10000;
-		scene.add( rollOverBooksfFlwMesh[idx] );
+		this.rollOverBooksfFlwMesh[idx] = new THREE.Mesh(this.rollOverBooksfFlwGeo, this.rollOverBooksfFlwMaterial); 
+		this.rollOverBooksfFlwMesh[idx].position.y = 10000;
+		this.scene.add( this.rollOverBooksfFlwMesh[idx] );
 	}
 	
 	
 	/* Textures !!! */
 	/* White Cube Setting */
-	cubeGeo = new THREE.BoxGeometry( 50, 50, 50 );
+	this.cubeGeo = new THREE.BoxGeometry( 50, 50, 50 );
 	
 	//pending 경로 바꿔야함 상대경로로 
-	cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff , map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/box-texture.jpg" ) });
+	this.cubeMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff , map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/box-texture.jpg" ) });
 	
 	/* Red Cube Setting */
-	cctvMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red
+	this.cctvMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // Red
 		
 	
 	/* Start Rack */
-	realBooksfYGeo = new THREE.BoxGeometry(8,50*booksf_y,8);
-	realBooksfYMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
+	this.realBooksfYGeo = new THREE.BoxGeometry(8,50*booksf_y,8);
+	this.realBooksfYMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
 	
-	realBooksfZGeo = new THREE.BoxGeometry(8,8,50*booksf_z);
-	realBooksfZMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
+	this.realBooksfZGeo = new THREE.BoxGeometry(8,8,50*booksf_z);
+	this.realBooksfZMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
 	
-	realBooksfXGeo = new THREE.BoxGeometry(50*booksf_x,8,8);
-	realBooksfXMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
+	this.realBooksfXGeo = new THREE.BoxGeometry(50*booksf_x,8,8);
+	this.realBooksfXMaterial = new THREE.MeshBasicMaterial( { map: new THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
 
-	realBooksfFlwGeo = new THREE.BoxGeometry(50,1,50);
-	realBooksfFlwMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: new
+	this.realBooksfFlwGeo = new THREE.BoxGeometry(50,1,50);
+	this.realBooksfFlwMaterial = new THREE.MeshLambertMaterial( { color: 0xffffff, map: new
 		 THREE.TextureLoader().load( "/dobbydo-cubemap-1.0.1/images/texture/booksf-texture.jpg" ) } );
 	
 	/* End Rack */
@@ -761,24 +725,24 @@ function init() {
 		geometry.vertices.push( new THREE.Vector3( i, 0,   size ) );
 	}
 	var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
-	line = new THREE.LineSegments( geometry, material );
-	scene.add( line );
+	this.line = new THREE.LineSegments( geometry, material );
+	this.scene.add( line );
 	
 	/* Raycaster Setting : Renders a 3D world based on a 2D map */
-	raycaster = new THREE.Raycaster();
-	mouse = new THREE.Vector2();
+	this.raycaster = new THREE.Raycaster();
+	this.mouse = new THREE.Vector2();
 	var geometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
-	geometry.rotateX( -Math.PI/2 );
-	plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
-	scene.add( plane );
-	objects.push( plane );
+	this.geometry.rotateX( -Math.PI/2 );
+	this.plane = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { visible: false } ) );
+	this.scene.add( plane );
+	this.objects.push( plane );
 	
 	/* Lights Setting */
 	var ambientLight = new THREE.AmbientLight( 0x606060 );
-	scene.add( ambientLight );
+	this.scene.add( ambientLight );
 	var directionalLight = new THREE.DirectionalLight( 0xffffff );
 	directionalLight.position.set( 1, 0.75, 0.5 ).normalize();
-	scene.add( directionalLight );
+	this.scene.add( directionalLight );
 	
 	
 	/* Build Boxes From DB */
@@ -844,78 +808,78 @@ function init() {
 	}
 	
 	/* Render */
-	renderer = new THREE.WebGLRenderer( { antialias: true } );
-	renderer.setClearColor( 0xf0f0f0 );
-	renderer.setPixelRatio( window.devicePixelRatio );
-	renderer.setSize( window.innerWidth*6/10, window.innerHeight );
-	container.appendChild( renderer.domElement );
+	this.renderer = new THREE.WebGLRenderer( { antialias: true } );
+	this.renderer.setClearColor( 0xf0f0f0 );
+	this.renderer.setPixelRatio( this.window.devicePixelRatio );
+	this.renderer.setSize( this.window.innerWidth*6/10, this.window.innerHeight );
+	this.container.appendChild( this.renderer.domElement );
 	
 	/* Event */
-	document.getElementById('container').addEventListener( 'mousemove', onDocumentMouseMove, false );
-	document.getElementById('container').addEventListener( 'mousedown', onDocumentMouseDown, false );
-	document.addEventListener( 'keydown', onDocumentKeyDown, false );
-	document.addEventListener( 'keyup', onDocumentKeyUp, false );
+	document.getElementById('container').addEventListener( 'mousemove', this.onDocumentMouseMove, false );
+	document.getElementById('container').addEventListener( 'mousedown', this.onDocumentMouseDown, false );
+	document.addEventListener( 'keydown', this.onDocumentKeyDown, false );
+	document.addEventListener( 'keyup', this.onDocumentKeyUp, false );
 	// When Window is Resized
-	window.addEventListener( 'resize', onWindowResize, false );
+	window.addEventListener( 'resize', this.onWindowResize, false );
 	
 	$(".shelf-event").click(function(event){
-		setPen_type(7);
-		getBooksfList();
-		appearAddandList();
+		this.setPen_type(7);
+		this.getBooksfList();
+		this.appearAddandList();
 	    event.stopPropagation();
 	});
 	
 	$(".box-event").click(function(event){
-		setPen_type(1);
-		getBoxList();
-		appearAddandList();
+		this.setPen_type(1);
+		this.getBoxList();
+		this.appearAddandList();
 	    event.stopPropagation();
 	});
 	
 	$(".stack-event").click(function(event){
-		getStackList();
-		appearAddandList();
+		this.getStackList();
+		this.appearAddandList();
 	    event.stopPropagation();
 	});
 	
 	$(".magnifier-event").click(function(event){
-		setPen_type(999);
+		this.setPen_type(999);
 	    event.stopPropagation();
 	});
 	
 	$(".eraser-event").click(function(event){
-		setPen_type(0);
+		this.setPen_type(0);
 	    event.stopPropagation();
 	});
 	
 	$(".hand-event").click(function(event){
-		setPen_type(990);
+		this.setPen_type(990);
 	    event.stopPropagation();
 	});
 	
 	$(".loader-truck-event").click(function(event){
-		setPen_type(992);
+		this.setPen_type(992);
 	    event.stopPropagation();
 	});
 	
 	$(".redo-event").click(function(event){
-		setStackId(-1);
+		this.setStackId(-1);
 	    event.stopPropagation();
 	});
 	
 	$(".saving-location-event").click(function(event){
-		savemap();
+		this.savemap();
 	    event.stopPropagation();
 	});
 	
 	$(".saving-documents-event").click(function(event){
-		savestack();
+		this.savestack();
 	    event.stopPropagation();
 	});
 	
 	$(".camera-event").click(function(event){
-		getAllFiles2()
-		appearAddandList();
+		this.getAllFiles2()
+		this.appearAddandList();
 	    event.stopPropagation();
 	});
 	
@@ -980,12 +944,12 @@ function init() {
 	
 	
 }
-function onWindowResize() {
+DOBBYDO_CUBEMAP.prototype.onWindowResize = function () {
 	camera.aspect = (window.innerWidth*6/10) / window.innerHeight;
 	camera.updateProjectionMatrix();
 	renderer.setSize( (window.innerWidth*6/10), window.innerHeight );
 }
-function onDocumentMouseMove( event ) {
+DOBBYDO_CUBEMAP.prototype.onDocumentMouseMove = function ( event ) {
 	event.preventDefault();
 	var d = document.getElementById('cubemapview').getBoundingClientRect();
 	var left_margin = parseInt(d.left);
@@ -1270,7 +1234,7 @@ function onDocumentMouseMove( event ) {
 	}
 	render();
 }
-function onDocumentMouseDown( event ) {
+DOBBYDO_CUBEMAP.prototype.onDocumentMouseDown = function ( event ) {
 	event.preventDefault();
 	if($("#stack_id").val() == 0){
 		alert("서고를 선택해주세요.");
@@ -1729,7 +1693,7 @@ function onDocumentMouseDown( event ) {
 	return false;
 }
 
-function appearAddandList(){
+DOBBYDO_CUBEMAP.prototype.appearAddandList = function (){
 	$("#view").css("display","none");
 	// $("#addandlist").css("z-index","92");
 	$("#addandlist").css("display","block");
@@ -1737,7 +1701,7 @@ function appearAddandList(){
 	$("#rightClickContainer").css("display","block");
 }
 
-function disappearRightClickContainer(){
+DOBBYDO_CUBEMAP.prototype.disappearRightClickContainer = function (){
 	// $("#view").css("z-index","-1");
 	$("#view").css("display","none");
 	// $("#addandlist").css("z-index","-1");
@@ -1749,7 +1713,7 @@ function disappearRightClickContainer(){
 	document.getElementById("container").focus();
 }
 
-function onDocumentKeyDown( event ) {
+DOBBYDO_CUBEMAP.prototype.onDocumentKeyDown = function ( event ) {
 	switch( event.keyCode ) {
 		// case 16: isShiftDown = true; break; //shift key
 		// case 17: isCtrlDown = true; break; //ctrl key
@@ -1785,21 +1749,21 @@ function onDocumentKeyDown( event ) {
 	}
 }
 
-function myKeyDownEventHandler(keycode){
+DOBBYDO_CUBEMAP.prototype.myKeyDownEventHandler = function (keycode){
 	//
 }
 
-function onDocumentKeyUp( event ) {
+DOBBYDO_CUBEMAP.prototype.onDocumentKeyUp = function ( event ) {
 	switch ( event.keyCode ) {
 		// case 16: isShiftDown = false; break;
 		// case 17: isCtrlDown = false; break;
 		// case 18: isAltDown = false; break;
 	}
 }
-function render() {
+DOBBYDO_CUBEMAP.prototype.render = function () {
 	renderer.render( scene, camera );
 }
-function setPen_type(i){
+DOBBYDO_CUBEMAP.prototype.setPen_type = function (i){
 	$('#container').css("cursor", "default");
 	if(i==3){
 		// y-axis green pen
