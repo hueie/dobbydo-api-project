@@ -11,16 +11,17 @@
 <script type="text/javascript" src="/dobbydo-cubemap-1.0.1/js/threejs/Detector.js"></script>
 <link href="/dobbydo-cubemap-1.0.1/css/dbd-cubemap.css" rel="stylesheet" />
 <script type="text/javascript" src="/dobbydo-cubemap-1.0.1/js/dbd-cubemap.js"></script>
+<script type="text/javascript" src="/dobbydo-cubemap-1.0.1/js/dbd-floorplanmap.js"></script>
 </head>
 <body>
 <div id="test_holder">
 </div>
 
 <script type="text/javascript">
-var dbd = new DOBBYDO_CUBEMAP('test_holder');
+//var dbd = new DOBBYDO_CUBEMAP("test_holder");
+var dbd = new DOBBYDO_FLOORPLANMAP("test_holder", 500, 500, 20);
 //dbd.type = "view";
 //alert(dbd.getInfo());
-dbd.run();
 </script>
 
 </body>

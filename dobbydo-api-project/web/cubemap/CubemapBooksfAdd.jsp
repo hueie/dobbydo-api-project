@@ -1,6 +1,5 @@
 <%@page language="java" import="java.sql.*"%>
 <%@page import="java.util.*" %>
-<%--@page contentType="text/html; charset=UTF-8"--%>
 <%@page contentType="application/json; charset=UTF-8"%>
 <%@page import="org.json.simple.JSONArray"%>
 <%@page import="org.json.simple.JSONObject"%>
