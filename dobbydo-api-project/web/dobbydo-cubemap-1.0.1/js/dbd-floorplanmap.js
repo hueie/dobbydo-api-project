@@ -41,10 +41,11 @@ DOBBYDO_FLOORPLANMAP.run = function () {
 	DOBBYDO_FLOORPLANMAP.heightCnt = DOBBYDO_FLOORPLANMAP_GLOBAL_HEIGHTCNT;
 	DOBBYDO_FLOORPLANMAP.widthIntval = DOBBYDO_FLOORPLANMAP.width/DOBBYDO_FLOORPLANMAP.widthCnt;
 	DOBBYDO_FLOORPLANMAP.heightIntval = DOBBYDO_FLOORPLANMAP.height/DOBBYDO_FLOORPLANMAP.heightCnt;
+	DOBBYDO_FLOORPLANMAP.rects = [];
 	
 	var init_html = "<canvas width='"+DOBBYDO_FLOORPLANMAP.width+"px' height='"+DOBBYDO_FLOORPLANMAP.height+"px' id='DOBBYDO_FLOORPLANMAP_BASE_CONTAINER' style='z-index:1;position:fixed;top:0;left:0;margin:0;padding:0;'></canvas>";
 	init_html += "<div id='DOBBYDO_FLOORPLANMAP_CONTAINER' style='z-index:10;position: fixed; border: 1px solid red;'> </div>";
-	
+	init_html += "<input type='hidden' id='fpm_stack_id'>";
 	$('#'+DOBBYDO_FLOORPLANMAP_GLOBAL_ID).html(init_html) ;
 
 	DOBBYDO_FLOORPLANMAP.canvas = $('#DOBBYDO_FLOORPLANMAP_BASE_CONTAINER'); // in your HTML this element appears as <canvas id="myCanvas"></canvas>
@@ -68,6 +69,7 @@ DOBBYDO_FLOORPLANMAP.run = function () {
 		DOBBYDO_FLOORPLANMAP.ctx.stroke();
 	}
 	
+	$("#fpm_stack_id").val("77");
 	DOBBYDO_FLOORPLANMAP.getBooksfList();
 	DOBBYDO_FLOORPLANMAP.drawRects(DOBBYDO_FLOORPLANMAP.rects);
 	DOBBYDO_FLOORPLANMAP.canvas.bind( "mousemove", DOBBYDO_FLOORPLANMAP.onDocumentMouseMove);
@@ -78,69 +80,54 @@ DOBBYDO_FLOORPLANMAP.getBooksfList = function (){
 	//Move (-500,-500)/50 -> (0,0)/25 
 	var x_axis_gap = 500;
 	var z_axis_gap = 500;
-	
-	var min_pos_x = 0;
-	var max_pos_x = 150;
-	var min_pos_z = 50;
-	var max_pos_z = 150;
 	var cubemap_intval = 50;
-	var tmp_w = (max_pos_x - min_pos_x)/cubemap_intval;
-	var tmp_h = (max_pos_z - min_pos_z)/cubemap_intval;
-	var tmp_y = (min_pos_x + x_axis_gap)/cubemap_intval;
-	var tmp_x = DOBBYDO_FLOORPLANMAP.widthCnt - tmp_h - (min_pos_z + z_axis_gap)/cubemap_intval;
-	console.log(tmp_x + " " + tmp_y + " " + tmp_w + " " + tmp_h + " ");
 	
-	/*
-	DOBBYDO_FLOORPLANMAP.rects = [
-		{idx: 1, x: DOBBYDO_FLOORPLANMAP.widthCnt *1, y: DOBBYDO_FLOORPLANMAP.heightCnt * 1, w: DOBBYDO_FLOORPLANMAP.widthCnt *2, h: DOBBYDO_FLOORPLANMAP.heightCnt * 2},
-        {idx: 2, x: DOBBYDO_FLOORPLANMAP.widthCnt *5, y: DOBBYDO_FLOORPLANMAP.heightCnt * 5, w: DOBBYDO_FLOORPLANMAP.widthCnt *6, h: DOBBYDO_FLOORPLANMAP.heightCnt * 7}
-		];
-	*/
-	DOBBYDO_FLOORPLANMAP.rects = [
-		{idx: 1, x: tmp_x, y: tmp_y, w: tmp_w, h: tmp_h},
-		];
 	
-	/*
 	$("#stack_add_form").css("display","none");
 	$("#booksf_add_form").css("display","block");
 	$("#box_add_form").css("display","none");
 	// 서가
-    var stack_id = "77";//$("#stack_id").val();
-    //SELECT min(pos_x), max(pos_x), min(pos_z), max(pos_z) FROM dobbydo.cube_map where cube_type = 7 and pos_y = 0 and cube_axis != 4 group by object_id;
+    var stack_id = $("#fpm_stack_id").val();
+    //SELECT object_id, linked_id, min(pos_x) min_pos_x, max(pos_x) max_pos_x, min(pos_z) min_pos_z, max(pos_z) max_pos_z FROM dobbydo.cube_map where cube_type = 7 and pos_y = 0 and cube_axis != 4 group by object_id;
 
     $.ajax({
         type: "get",
-        url: "/cubemap/CubemapBooksfList.jsp",
+        url: "/floorplanmap/FloorplanmapBooksfList.jsp",
         data: {"stack_id":stack_id },
+        async:false,
         success: function(data, textStatus, xhr){
-        	// alert(data);
         	var objs = data;// JSON.parse(msg);
-        	var html = "<table><tr><td></td><td>이름</td><td>비고</td><td>X</td><td>Z</td><td>Y</td><td>단계수</td></tr>";
         	for(var idx in objs){
-        		html += "<tr>";
-        		html += "<td><div class=\"dbd-cubemap-check-green\" style=\"width:24px;height:24px;\" onclick=\"DOBBYDO_CUBEMAP.upNdown('selected_booksf_y',"+objs[idx].booksf_y+");DOBBYDO_CUBEMAP.upNdown('selected_booksf_x',"+objs[idx].booksf_x+");DOBBYDO_CUBEMAP.upNdown('selected_booksf_z',"+objs[idx].booksf_z+");DOBBYDO_CUBEMAP.upNdown('selected_booksf_flw',"+objs[idx].booksf_flw+");DOBBYDO_CUBEMAP.upNdown('linked_id',"+objs[idx].booksf_id+");DOBBYDO_CUBEMAP.setPen_type(7);DOBBYDO_CUBEMAP.disappearRightClickContainer();\"></td>";
-        		html += "<td>"+objs[idx].booksf_nm + "</td>";
-        		html += "<td>"+objs[idx].booksf_remk + "</td>";
-        		html += "<td>"+objs[idx].booksf_x + "</td>";
-        		html += "<td>"+objs[idx].booksf_z + "</td>";
-        		html += "<td>"+objs[idx].booksf_y + "</td>";
-        		html += "<td>"+objs[idx].booksf_flw + "</td>";
-        		html += "</tr>"; 
+        		var object_id = objs[idx].object_id;
+        		var linked_id = objs[idx].linked_id;
+        		var min_pos_x = parseInt(objs[idx].min_pos_x);
+        		var max_pos_x = parseInt(objs[idx].max_pos_x);
+        		var min_pos_z = parseInt(objs[idx].min_pos_z);
+        		var max_pos_z = parseInt(objs[idx].max_pos_z);
+        		console.log(object_id + " " + linked_id + " " + min_pos_x + " " + max_pos_x + " " + min_pos_z + " " + max_pos_z + " ");
+        		
+        		var tmp_w = (max_pos_x - min_pos_x)/cubemap_intval;
+        		var tmp_h = (max_pos_z - min_pos_z)/cubemap_intval;
+        		var tmp_y = (min_pos_x + x_axis_gap)/cubemap_intval;
+        		var tmp_x = DOBBYDO_FLOORPLANMAP.widthCnt - tmp_h - (min_pos_z + z_axis_gap)/cubemap_intval;
+        		console.log(tmp_w + " " + tmp_h + " " + tmp_y + " " + tmp_x);
+        		
+        		DOBBYDO_FLOORPLANMAP.rects.push(
+        			{object_id: object_id, linked_id: linked_id, x: tmp_x, y: tmp_y, w: tmp_w, h: tmp_h}
+        			);
         	}
-        	html += "</table>";
-        	$("#list").html(html);
         },
         error:function (xhr, ajaxOptions, thrownError){
             alert(xhr.status);
             alert(thrownError);
         } 
     });
-	*/
 }
 
 
 
 DOBBYDO_FLOORPLANMAP.drawRects = function (rects) {
+	console.log("length : "+rects.length);
 	for (var i = 0, len = rects.length; i < len; i++) {
 		var tmpW = parseInt(rects[i].w);
 		tmpW *= DOBBYDO_FLOORPLANMAP.widthIntval;
