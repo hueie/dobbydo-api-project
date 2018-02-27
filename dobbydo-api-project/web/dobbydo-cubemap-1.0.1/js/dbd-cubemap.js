@@ -41,7 +41,7 @@ function DOBBYDO_CUBEMAP(pGLOBAL_ID) {
 	this.booksf_z = 1; 
 	this.booksf_x = 1; 
 	
-	DOBBYDO_CUBEMAP.run();
+	//DOBBYDO_CUBEMAP.run(); if auto run
 }
 
 DOBBYDO_CUBEMAP.run = function () {

@@ -18,10 +18,12 @@
 </div>
 
 <script type="text/javascript">
+
 //var dbd = new DOBBYDO_CUBEMAP("test_holder");
-var dbd = new DOBBYDO_FLOORPLANMAP("test_holder", 500, 500, 20);
-//dbd.type = "view";
-//alert(dbd.getInfo());
+//DOBBYDO_CUBEMAP.run();
+
+var dbd = new DOBBYDO_FLOORPLANMAP("test_holder", 1000, 1000, 20, 20);
+DOBBYDO_FLOORPLANMAP.run();
 </script>
 
 </body>
